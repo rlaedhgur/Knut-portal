@@ -124,7 +124,7 @@ export default function ProfilePage() {
 
   const onTabClick = (tab: string) => {
     if (tab !== "학적") {
-      window.alert("제공해드리지 않는 정보입니다.");
+      window.alert("제공해드리는 기간이 아닙니다.");
       return;
     }
     setActiveTab(tab);
@@ -155,7 +155,7 @@ export default function ProfilePage() {
 
   const onSaveContact = () => {
     safeSetJSON("demo_contact", contact);
-    window.alert("저장 완료!");
+    window.alert("저장되었습니다.");
   };
   
 
@@ -174,10 +174,10 @@ export default function ProfilePage() {
       </div>
         {/* ✅ 경로와 학번/성명 사이의 버튼 줄(분리) */}
       <div className="px-4 py-2 bg-white flex items-center justify-end gap-2">
-        <button onClick={() => alert("조회")} className={UI.btnPortal}>
+        <button className={UI.btnPortal}>
           조회
         </button>
-        <button onClick={() => alert("도움말")} className={UI.btnPortal}>
+        <button className={UI.btnPortal}>
           도움말
         </button>
       </div>

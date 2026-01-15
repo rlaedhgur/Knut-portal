@@ -182,8 +182,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   
 
   const onClickItem = (item: MenuItem) => {
-    if (!item.href) return; // Link가 처리
-    window.alert("'개인정보관리 / 성적조회 / 시간표조회'만 이동할 수 있습니다.");
+    if (item.href) return; // Link가 처리
+    window.alert("제공해드리는 기간이 아닙니다");
   };
 
   const onLogout = () => {
@@ -216,7 +216,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               <button
                 className="flex-1 rounded border border-neutral-300 bg-white px-3 py-2 text-sm hover:bg-neutral-50"
                 type="button"
-                onClick={() => window.alert("즐겨찾기 기능은 데모에서 제공하지 않습니다.")}
               >
                 ★ 즐겨찾기
               </button>
@@ -322,7 +321,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             <div className="text-neutral-600">엄승배 [사회기반공학전공] 님</div>
             <button
               className="px-3 py-1 rounded border border-neutral-300 bg-white hover:bg-neutral-50"
-              onClick={() => window.alert("로그인 연장이 불가능합니다.")}
+              onClick={() => window.alert("로그인 연장이 되었습니다.")}
               type="button"
             >
               로그인 연장

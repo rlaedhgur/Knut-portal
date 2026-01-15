@@ -195,21 +195,19 @@ export default function TimetablePage() {
       {/* ✅ 버튼 전용 줄 (테두리 없음, 오른쪽 정렬) */}
       <div className="px-4 py-2 bg-white flex items-center justify-end gap-2">
         <button
-          onClick={() => alert("시간표 출력은 제공하지 않습니다.")}
+          onClick={() => alert("출력하는 기간이 아닙니다.")}
           className="h-9 px-4 rounded border border-neutral-500 bg-white hover:bg-neutral-100 text-sm"
         >
           시간표출력
         </button>
 
         <button
-          onClick={() => alert(`조회 완료: ${year} ${term} / ${week}`)}
           className="h-9 px-4 rounded border border-neutral-500 bg-white hover:bg-neutral-100 text-sm"
         >
           조회
         </button>
 
         <button
-          onClick={() => alert("도움말: 학기/년도 선택 후 조회하면 시간표가 표시됩니다.")}
           className="h-9 px-4 rounded border border-neutral-500 bg-white hover:bg-neutral-100 text-sm"
         >
           도움말

@@ -124,7 +124,6 @@ export default function LoginPage() {
                         <button
                           key={x.label}
                           type="button"
-                          onClick={() => alert("데모에서는 제공하지 않습니다.")}
                           className="rounded-[16px] bg-white/10 hover:bg-white/15 border border-white/20 px-4 py-4 text-center"
                         >
                           <div className="mx-auto mb-2 h-10 w-10 relative">
@@ -210,7 +209,6 @@ export default function LoginPage() {
                     <button
                       type="button"
                       className="w-full bg-[#607792] text-white py-2.5 text-sm font-semibold hover:opacity-90"
-                      onClick={() => alert("데모에서는 제공하지 않습니다.")}
                     >
                       시간강사/비전임교원 강의경력증명원
                     </button>
@@ -229,7 +227,6 @@ export default function LoginPage() {
                       <button
                         type="button"
                         className="underline underline-offset-2"
-                        onClick={() => alert("데모에서는 제공하지 않습니다.")}
                       >
                         학번/교직원번호 조회
                       </button>
@@ -239,14 +236,12 @@ export default function LoginPage() {
                       <button
                         type="button"
                         className="flex items-center justify-center gap-2 py-2 border border-neutral-200 hover:bg-neutral-50"
-                        onClick={() => alert("데모에서는 제공하지 않습니다.")}
                       >
                         <span>ⓘ</span> 비밀번호 재설정
                       </button>
                       <button
                         type="button"
                         className="flex items-center justify-center gap-2 py-2 border border-neutral-200 hover:bg-neutral-50"
-                        onClick={() => alert("데모에서는 제공하지 않습니다.")}
                       >
                         <span>ⓘ</span> 개인정보처리방침
                       </button>
