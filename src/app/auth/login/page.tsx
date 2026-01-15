@@ -9,12 +9,20 @@ import { login } from "@/lib/auth";
 const DEMO_ID = "2240030";
 const DEMO_PW = "dja12345678!";
 
+// ✅ public/images/icons/ 여기에 파일 넣고 이름만 맞추면 됩니다.
+const QUICK_ICONS = [
+  { label: "로그인/로그아웃\n유의사항", img: "/images/icons/notice.png" },
+  { label: "웹메일", img: "/images/icons/webmail.png" },
+  { label: "원격 PC지원", img: "/images/icons/remote-pc.png" },
+  { label: "원격접속", img: "/images/icons/remote-access.png" },
+];
+
 export default function LoginPage() {
   const router = useRouter();
 
   const [studentId, setStudentId] = useState("");
   const [password, setPassword] = useState("");
-  const [rememberId, setRememberId] = useState(true);
+  const [rememberId, setRememberId] = useState(false);
   const [error, setError] = useState("");
 
   // ✅ 아이디 저장값 불러오기 (렌더 중 setState 금지 → useEffect로)
@@ -35,7 +43,7 @@ export default function LoginPage() {
     }
 
     // ✅ 기존 auth 로직 유지(세션 저장) - auth.ts 기본은 id 1개만 받습니다
-    login(studentId.trim(),password);
+    login(studentId.trim(), password);
 
     // ✅ 아이디 저장(선택)
     try {
@@ -75,55 +83,58 @@ export default function LoginPage() {
                 />
               </div>
 
-              {/* ✅ 하단 안내 패널(2번째 사진처럼: 더 연한 블루톤 + 배치 정돈) */}
-              <div className="absolute left-10 right-10 bottom-12">
-                <div className="rounded-[22px] bg-[#1f5c86]/22 backdrop-blur-md border border-white/25 px-10 py-8 text-white">
-                  <div className="grid grid-cols-1 xl:grid-cols-[1.1fr_1px_1fr] gap-8">
-                    {/* 왼쪽 안내 */}
+              {/* ✅ 하단 안내 패널: "오른쪽 아래 완전 부착" + blur 제거 + 원하는 밑줄 구조 */}
+              <div className="absolute right-0 bottom-0">
+                <div className="rounded-tl-[18px] rounded-tr-[18px] rounded-bl-[18px] rounded-br-[28px] bg-[#1f5c86]/20 border border-white/20 px-10 py-8 text-white">
+                  {/* ✅ 상단: 제목 2개 + 각각 아래 밑줄(가운데 세로선 없음) */}
+                  <div className="grid grid-cols-2 gap-8 mb-6">
                     <div>
                       <div className="font-semibold text-[15px]">학생/교직원 로그인 안내</div>
-                      <div className="mt-5 space-y-2 text-[13px] leading-relaxed text-white/90">
-                        <div className="font-semibold text-white">포털 사용자 아이디</div>
-                        <div>학번 / 교직원번호</div>
+                      <div className="mt-2 h-px bg-white/40 w-[260px]" />
+                    </div>
 
-                        <div className="pt-3 font-semibold text-white">비밀번호</div>
-                        <div>
-                          - 초기 비밀번호 : 주민등록번호 뒷 7자리
-                          <br />- (9자리) 대문자, 소문자, 숫자, 특수문자 중 3종류 이상
-                        </div>
+                    <div>
+                      <div className="font-semibold text-[15px] text-left">바로가기 아이콘</div>
+                      {/* ✅ 밑줄은 "오른쪽 칼럼이지만 왼쪽에서 시작" */}
+                      <div className="mt-2 h-px bg-white/40 w-[220px] mr-auto" />
+                    </div>
+                  </div>
 
-                        <div className="pt-2 text-white/90">
-                          ※ 최초 로그인 시 비밀번호를 변경해야 합니다.
-                        </div>
+                  {/* ✅ 아래 내용: 2칼럼 유지 */}
+                  <div className="grid grid-cols-2 gap-8 items-start">
+                    {/* 왼쪽 안내 */}
+                    <div className="space-y-2 text-[13px] leading-relaxed text-white/90">
+                      <div className="font-semibold text-white">포털 사용자 아이디</div>
+                      <div>학번 / 교직원번호</div>
+
+                      <div className="pt-3 font-semibold text-white">비밀번호</div>
+                      <div>
+                        - 초기 비밀번호 : 주민등록번호 뒷 7자리
+                        <br />- (9자리) 대문자, 소문자, 숫자, 특수문자 중 3종류 이상
+                      </div>
+
+                      <div className="pt-2 text-white/90">
+                        ※ 최초 로그인 시 비밀번호를 변경해야 합니다.
                       </div>
                     </div>
 
-                    {/* 가운데 라인(큰 화면에서만) */}
-                    <div className="hidden xl:block bg-white/25 w-px" />
-
-                    {/* 오른쪽 아이콘 */}
-                    <div>
-                      <div className="font-semibold text-[15px] text-right">바로가기 아이콘</div>
-                      <div className="mt-5 grid grid-cols-2 gap-4">
-                        {[
-                          { label: "로그인/로그아웃\n유의사항", icon: "🔒" },
-                          { label: "웹메일", icon: "✉️" },
-                          { label: "원격 PC지원", icon: "🖥️" },
-                          { label: "원격접속", icon: "🌐" },
-                        ].map((x) => (
-                          <button
-                            key={x.label}
-                            type="button"
-                            onClick={() => alert("데모에서는 제공하지 않습니다.")}
-                            className="rounded-[16px] bg-white/10 hover:bg-white/15 border border-white/20 px-4 py-4 text-center"
-                          >
-                            <div className="text-3xl mb-2">{x.icon}</div>
-                            <div className="whitespace-pre-line text-[13px] text-white/90">
-                              {x.label}
-                            </div>
-                          </button>
-                        ))}
-                      </div>
+                    {/* 오른쪽 아이콘(이미지로 교체) */}
+                    <div className="grid grid-cols-2 gap-4">
+                      {QUICK_ICONS.map((x) => (
+                        <button
+                          key={x.label}
+                          type="button"
+                          onClick={() => alert("데모에서는 제공하지 않습니다.")}
+                          className="rounded-[16px] bg-white/10 hover:bg-white/15 border border-white/20 px-4 py-4 text-center"
+                        >
+                          <div className="mx-auto mb-2 h-10 w-10 relative">
+                            <Image src={x.img} alt={x.label} fill className="object-contain" />
+                          </div>
+                          <div className="whitespace-pre-line text-[13px] text-white/90">
+                            {x.label}
+                          </div>
+                        </button>
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -154,19 +165,21 @@ export default function LoginPage() {
 
                 {/* 로고/타이틀 */}
                 <div className="flex items-center justify-center gap-3 mb-6">
-                  <Image src="/images/logo.png" alt="logo" width={46} height={46} />
-                  <div className="font-semibold text-neutral-800 leading-tight">
-                    국립한국교통대학교
-                    <div className="text-xs font-normal text-neutral-500">
-                      KOREA NATIONAL UNIVERSITY OF TRANSPORTATION
-                    </div>
-                  </div>
+                  <Image src="/images/login_logo.jpg" alt="logo" width={400} height={400} />
                 </div>
 
                 {/* 로그인 카드 */}
                 <div className="border border-neutral-200 rounded-[14px] p-6 shadow-sm bg-white">
                   <div className="flex items-center gap-2 mb-3">
-                    <span className="text-lg">🔒</span>
+                    {/* ✅ 로그인 아이콘(이미지로 교체) */}
+                    <div className="relative h-5 w-5">
+                      <Image
+                        src="/images/icons/login_lock.png"
+                        alt="login"
+                        fill
+                        className="object-contain"
+                      />
+                    </div>
                     <div className="font-bold text-neutral-800">LOGIN</div>
                   </div>
 
