@@ -266,11 +266,19 @@ export default function GradesPage() {
 
             {/* 툴바(아이콘) */}
             <div className="h-12 px-3 border-b border-neutral-200 flex items-center gap-2">
-              <button onClick={printPdf} className="h-9 px-3 rounded border border-neutral-300 hover:bg-neutral-50">
-                인쇄
+              <button 
+                onClick={printPdf}
+                type="button"
+                title="인쇄"
+                className="h-9 w-9 flex items-center justify-center rounded border border-neutral-300 hover:bg-neutral-50">
+                <img src="/images/icons/insell.png" alt="인쇄" className="h-5 w-5" />
               </button>
-              <button onClick={downloadPdf} className="h-9 px-3 rounded border border-neutral-300 hover:bg-neutral-50">
-                PDF 다운로드
+              <button 
+                onClick={downloadPdf}
+                type="button"
+                title="pdf 다운로드"
+                className="h-9 px-3 rounded border border-neutral-300 hover:bg-neutral-50">
+                <img src="/images/icons/pdf.png" alt="pdf 다운로드" className="h-5 w-5"/>
               </button>
               <div className="ml-auto text-sm text-neutral-600">
                 {pdfLoading ? "PDF 생성 중..." : ""}
