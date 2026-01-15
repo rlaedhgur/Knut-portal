@@ -2,247 +2,299 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { login } from "@/lib/auth";
 
-const REMEMBER_KEY = "knut_portal_remember_studentId_v1";
+const DEMO_ID = "2240030";
+const DEMO_PW = "dja12345678!";
 
 export default function LoginPage() {
   const router = useRouter();
 
   const [studentId, setStudentId] = useState("");
   const [password, setPassword] = useState("");
-  const [rememberId, setRememberId] = useState(false);
+  const [rememberId, setRememberId] = useState(true);
+  const [error, setError] = useState("");
 
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  // ✅ 저장된 학번 불러오기(선택 기능)
+  // ✅ 아이디 저장값 불러오기 (렌더 중 setState 금지 → useEffect로)
   useEffect(() => {
     try {
-      const saved = window.localStorage.getItem(REMEMBER_KEY);
-      if (saved) {
-        setStudentId(saved);
-        setRememberId(true);
-      }
+      const remembered = localStorage.getItem("remember_student_id");
+      if (remembered) setStudentId(remembered);
     } catch {}
   }, []);
 
-  const canSubmit = useMemo(() => {
-    return studentId.trim().length > 0 && password.length > 0 && !loading;
-  }, [studentId, password, loading]);
-
-  const onSubmit = async (e: React.FormEvent) => {
+  const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
+    setError("");
 
-    if (!studentId.trim() || !password) {
-      setError("학번(아이디)과 비밀번호를 입력해 주세요.");
+    if (studentId.trim() !== DEMO_ID || password !== DEMO_PW) {
+      setError("아이디 또는 비밀번호가 올바르지 않습니다.");
       return;
     }
 
-    setLoading(true);
+    // ✅ 기존 auth 로직 유지(세션 저장) - auth.ts 기본은 id 1개만 받습니다
+    login(studentId.trim(),password);
+
+    // ✅ 아이디 저장(선택)
     try {
-      const result = login(studentId, password);
-      if (!result.ok) {
-        setError(result.message);
-        return;
-      }
+      if (rememberId) localStorage.setItem("remember_student_id", studentId.trim());
+      else localStorage.removeItem("remember_student_id");
+    } catch {}
 
-      // ✅ 학번 저장 옵션
-      try {
-        if (rememberId) window.localStorage.setItem(REMEMBER_KEY, studentId.trim());
-        else window.localStorage.removeItem(REMEMBER_KEY);
-      } catch {}
-
-      router.replace("/profile");
-    } finally {
-      setLoading(false);
-    }
+    router.replace("/");
   };
 
   return (
-    <div className="min-h-screen bg-slate-100">
-      <div className="mx-auto flex min-h-screen max-w-[1200px] items-stretch gap-8 px-4 py-8">
-        {/* ✅ 좌측(스샷 느낌의 큰 이미지 영역) */}
-        <div className="relative hidden w-[62%] overflow-hidden rounded-[28px] bg-slate-900 lg:block">
-          <Image
-            src="/images/right.jpg"
-            alt="background"
-            fill
-            priority
-            className="object-cover"
-          />
-          <div className="absolute inset-0 bg-slate-900/55" />
+    <div className="min-h-screen flex flex-col bg-white">
+      {/* ✅ 메인 영역: 위쪽 잘림 방지 + 푸터와 간격 */}
+      <main className="flex-1 pt-8 pb-10">
+        <div className="w-full">
+          <div
+            className="grid items-start gap-x-8"
+            style={{ gridTemplateColumns: "5.5fr 2.5fr 2fr" }}
+          >
+            {/* =========================
+                LEFT (left.jpg)
+               ========================= */}
+            <section className="relative overflow-hidden rounded-r-[28px] rounded-l-none min-h-[640px]">
+              <Image src="/images/left.jpg" alt="left" fill priority className="object-cover" />
 
-          <div className="relative z-10 flex h-full flex-col justify-end p-10 text-white">
-            <div className="max-w-[520px]">
-              <p className="text-sm font-semibold opacity-90">학생/교직원 로그인 안내</p>
-              <div className="mt-2 h-px w-full bg-white/25" />
-              <div className="mt-4 space-y-2 text-sm leading-6 text-white/90">
-                <p>• 포털 사용자 아이디 : 학번 / 교직원번호</p>
-                <p>• 비밀번호 : 초기 비밀번호는 안내 정책에 따릅니다.</p>
-                <p>• 최초 로그인 시 비밀번호 변경이 필요할 수 있습니다.</p>
-              </div>
+              {/* 전체 톤 살짝만(너무 찐하지 않게) */}
+              <div className="absolute inset-0 bg-[#0b2a4a]/15" />
 
-              <div className="mt-8 grid grid-cols-3 gap-4 text-center text-xs text-white/90">
-                <div className="rounded-2xl bg-white/10 px-4 py-4 ring-1 ring-white/15">
-                  <div className="mx-auto mb-2 h-10 w-10 rounded-full bg-white/15" />
-                  로그인/로그아웃<br />유의사항
-                </div>
-                <div className="rounded-2xl bg-white/10 px-4 py-4 ring-1 ring-white/15">
-                  <div className="mx-auto mb-2 h-10 w-10 rounded-full bg-white/15" />
-                  웹메일
-                </div>
-                <div className="rounded-2xl bg-white/10 px-4 py-4 ring-1 ring-white/15">
-                  <div className="mx-auto mb-2 h-10 w-10 rounded-full bg-white/15" />
-                  원격지원
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* ✅ 우측 로그인 카드 */}
-        <div className="flex w-full flex-col justify-center lg:w-[38%]">
-          <div className="mx-auto w-full max-w-[420px]">
-            {/* 상단 링크 느낌(스샷 체크리스트 느낌) */}
-            <div className="mb-6 space-y-2 text-[12px] text-slate-700">
-              <div className="flex items-center gap-2">
-                <span className="inline-block h-3 w-3 rounded-sm border border-slate-400 bg-white" />
-                포털시스템 사용 안내 동영상(교직원)
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="inline-block h-3 w-3 rounded-sm border border-slate-400 bg-white" />
-                포털시스템 사용 안내 동영상(학생)
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-slate-500">※</span>
-                통합정보시스템 이용가이드(학생)
-              </div>
-            </div>
-
-            <div className="rounded-3xl bg-white px-8 py-8 shadow-sm ring-1 ring-slate-200">
-              <div className="flex flex-col items-center">
+              {/* ✅ 워터마크 로고(왼쪽 중앙 크게, 더 옅게) */}
+              <div className="absolute -left-44 top-1/2 -translate-y-1/2 w-[420px] opacity-[0.1] pointer-events-none select-none">
                 <Image
                   src="/images/logo.png"
-                  alt="KNUT"
-                  width={220}
-                  height={48}
-                  className="h-auto w-[220px]"
-                  priority
+                  alt="watermark"
+                  width={1240}
+                  height={1240}
+                  className="object-contain"
                 />
-                <div className="mt-4 flex w-full items-center gap-3">
-                  <span className="h-px flex-1 bg-slate-200" />
-                  <span className="flex items-center gap-2 text-xs font-semibold text-slate-600">
-                    <span className="inline-block h-4 w-4 rounded bg-slate-100" />
-                    LOGIN
-                  </span>
-                  <span className="h-px flex-1 bg-slate-200" />
-                </div>
               </div>
 
-              <form onSubmit={onSubmit} className="mt-6 space-y-4">
-                <div>
-                  <label className="mb-1 block text-xs font-semibold text-slate-700">
-                    학번 / 교직원번호
-                  </label>
-                  <input
-                    value={studentId}
-                    onChange={(e) => setStudentId(e.target.value)}
-                    className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:border-slate-400"
-                    placeholder="예) 2511111"
-                    autoComplete="username"
-                  />
-                </div>
+              {/* ✅ 하단 안내 패널(2번째 사진처럼: 더 연한 블루톤 + 배치 정돈) */}
+              <div className="absolute left-10 right-10 bottom-12">
+                <div className="rounded-[22px] bg-[#1f5c86]/22 backdrop-blur-md border border-white/25 px-10 py-8 text-white">
+                  <div className="grid grid-cols-1 xl:grid-cols-[1.1fr_1px_1fr] gap-8">
+                    {/* 왼쪽 안내 */}
+                    <div>
+                      <div className="font-semibold text-[15px]">학생/교직원 로그인 안내</div>
+                      <div className="mt-5 space-y-2 text-[13px] leading-relaxed text-white/90">
+                        <div className="font-semibold text-white">포털 사용자 아이디</div>
+                        <div>학번 / 교직원번호</div>
 
-                <div>
-                  <label className="mb-1 block text-xs font-semibold text-slate-700">
-                    비밀번호
-                  </label>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:border-slate-400"
-                    placeholder="비밀번호 입력"
-                    autoComplete="current-password"
-                  />
-                </div>
+                        <div className="pt-3 font-semibold text-white">비밀번호</div>
+                        <div>
+                          - 초기 비밀번호 : 주민등록번호 뒷 7자리
+                          <br />- (9자리) 대문자, 소문자, 숫자, 특수문자 중 3종류 이상
+                        </div>
 
-                <div className="flex items-center justify-between pt-1 text-xs text-slate-600">
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      className="h-4 w-4 accent-slate-600"
-                      checked={rememberId}
-                      onChange={(e) => setRememberId(e.target.checked)}
-                    />
-                    학번/교직원번호 저장
-                  </label>
+                        <div className="pt-2 text-white/90">
+                          ※ 최초 로그인 시 비밀번호를 변경해야 합니다.
+                        </div>
+                      </div>
+                    </div>
 
-                  <button
-                    type="button"
-                    className="text-slate-600 underline-offset-2 hover:underline"
-                    onClick={() => alert("데모 화면입니다. (학번/교직원번호 조회 기능은 연결되지 않았습니다.)")}
-                  >
-                    학번/교직원번호 조회
-                  </button>
-                </div>
+                    {/* 가운데 라인(큰 화면에서만) */}
+                    <div className="hidden xl:block bg-white/25 w-px" />
 
-                {error && (
-                  <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-                    {error}
+                    {/* 오른쪽 아이콘 */}
+                    <div>
+                      <div className="font-semibold text-[15px] text-right">바로가기 아이콘</div>
+                      <div className="mt-5 grid grid-cols-2 gap-4">
+                        {[
+                          { label: "로그인/로그아웃\n유의사항", icon: "🔒" },
+                          { label: "웹메일", icon: "✉️" },
+                          { label: "원격 PC지원", icon: "🖥️" },
+                          { label: "원격접속", icon: "🌐" },
+                        ].map((x) => (
+                          <button
+                            key={x.label}
+                            type="button"
+                            onClick={() => alert("데모에서는 제공하지 않습니다.")}
+                            className="rounded-[16px] bg-white/10 hover:bg-white/15 border border-white/20 px-4 py-4 text-center"
+                          >
+                            <div className="text-3xl mb-2">{x.icon}</div>
+                            <div className="whitespace-pre-line text-[13px] text-white/90">
+                              {x.label}
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                   </div>
-                )}
+                </div>
+              </div>
+            </section>
 
-                <button
-                  type="submit"
-                  disabled={!canSubmit}
-                  className="w-full rounded-md bg-slate-600 py-2.5 text-sm font-semibold text-white hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {loading ? "로그인 중..." : "로그인"}
-                </button>
-
-                <button
-                  type="button"
-                  className="w-full rounded-md bg-slate-600/90 py-2.5 text-sm font-semibold text-white hover:bg-slate-700"
-                  onClick={() => alert("데모 화면입니다. (부가 로그인 기능은 연결되지 않았습니다.)")}
-                >
-                  시간강사/비전임교원 강의경력증명원
-                </button>
-
-                <div className="mt-2 flex items-center justify-between text-xs text-slate-500">
-                  <button
-                    type="button"
-                    className="hover:underline"
-                    onClick={() => alert("데모 화면입니다. (비밀번호 재설정 미구현)")}
-                  >
-                    비밀번호 재설정
-                  </button>
-                  <button
-                    type="button"
-                    className="hover:underline"
-                    onClick={() => alert("데모 화면입니다. (개인정보처리방침 미연결)")}
-                  >
-                    개인정보처리방침
-                  </button>
+            {/* =========================
+                CENTER (Login box)
+               ========================= */}
+            <section className="flex justify-center">
+              {/* ✅ 살짝 내려와 보이게(상단 텀) */}
+              <div className="w-full max-w-[420px] pt-4">
+                {/* 상단 링크 */}
+                <div className="text-sm text-neutral-700 space-y-2 mb-5">
+                  <label className="flex items-center gap-2">
+                    <input type="checkbox" className="h-4 w-4" />
+                    <span>포털시스템 사용 안내 동영상(교직원)</span>
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input type="checkbox" className="h-4 w-4" />
+                    <span>포털시스템 사용 안내 동영상(학생)</span>
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <span className="text-neutral-500">※</span>
+                    <span>통합정보시스템 이용가이드(학생)</span>
+                  </div>
                 </div>
 
-                {/* ✅ 데모 안내(원하시면 제거 가능) */}
-                <div className="pt-2 text-[11px] text-slate-500">
-                  ※ 현재 데모 로그인 계정은 지정된 1개만 허용됩니다.
+                {/* 로고/타이틀 */}
+                <div className="flex items-center justify-center gap-3 mb-6">
+                  <Image src="/images/logo.png" alt="logo" width={46} height={46} />
+                  <div className="font-semibold text-neutral-800 leading-tight">
+                    국립한국교통대학교
+                    <div className="text-xs font-normal text-neutral-500">
+                      KOREA NATIONAL UNIVERSITY OF TRANSPORTATION
+                    </div>
+                  </div>
                 </div>
-              </form>
-            </div>
 
-            <div className="mt-6 text-center text-xs text-slate-500">
-              COPYRIGHTⓒ KOREA NATIONAL UNIVERSITY OF TRANSPORTATION. ALL RIGHTS RESERVED
-            </div>
+                {/* 로그인 카드 */}
+                <div className="border border-neutral-200 rounded-[14px] p-6 shadow-sm bg-white">
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className="text-lg">🔒</span>
+                    <div className="font-bold text-neutral-800">LOGIN</div>
+                  </div>
+
+                  <form onSubmit={onSubmit} className="space-y-3">
+                    <input
+                      value={studentId}
+                      onChange={(e) => setStudentId(e.target.value)}
+                      placeholder="아이디(학번/교직원번호)"
+                      className="w-full border border-neutral-300 bg-[#eef5ff] px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-neutral-300"
+                    />
+                    <input
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="비밀번호"
+                      type="password"
+                      className="w-full border border-neutral-300 bg-[#eef5ff] px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-neutral-300"
+                    />
+
+                    {error ? <div className="text-sm text-red-600 font-medium">{error}</div> : null}
+
+                    <button
+                      type="submit"
+                      className="w-full bg-[#607792] text-white py-2.5 text-sm font-semibold hover:opacity-90"
+                    >
+                      로그인
+                    </button>
+
+                    <button
+                      type="button"
+                      className="w-full bg-[#607792] text-white py-2.5 text-sm font-semibold hover:opacity-90"
+                      onClick={() => alert("데모에서는 제공하지 않습니다.")}
+                    >
+                      시간강사/비전임교원 강의경력증명원
+                    </button>
+
+                    <div className="flex items-center justify-between text-xs text-neutral-700 pt-2">
+                      <label className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={rememberId}
+                          onChange={(e) => setRememberId(e.target.checked)}
+                          className="h-4 w-4"
+                        />
+                        <span>학번/교직원번호 저장</span>
+                      </label>
+
+                      <button
+                        type="button"
+                        className="underline underline-offset-2"
+                        onClick={() => alert("데모에서는 제공하지 않습니다.")}
+                      >
+                        학번/교직원번호 조회
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2 text-xs text-neutral-700 pt-2">
+                      <button
+                        type="button"
+                        className="flex items-center justify-center gap-2 py-2 border border-neutral-200 hover:bg-neutral-50"
+                        onClick={() => alert("데모에서는 제공하지 않습니다.")}
+                      >
+                        <span>ⓘ</span> 비밀번호 재설정
+                      </button>
+                      <button
+                        type="button"
+                        className="flex items-center justify-center gap-2 py-2 border border-neutral-200 hover:bg-neutral-50"
+                        onClick={() => alert("데모에서는 제공하지 않습니다.")}
+                      >
+                        <span>ⓘ</span> 개인정보처리방침
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </section>
+
+            {/* =========================
+                RIGHT (right.jpg)
+               ========================= */}
+            <section className="relative overflow-hidden rounded-l-[28px] rounded-r-none min-h-[640px]">
+              <Image src="/images/right.jpg" alt="right" fill className="object-cover" priority />
+              <div className="absolute inset-0 bg-white/5" />
+            </section>
           </div>
         </div>
-      </div>
+      </main>
+
+      {/* ✅ 푸터 위 흰 여백(검정 바가 바로 붙어 보이지 않게) */}
+      <div className="h-10 bg-white" />
+
+      {/* ✅ 하단 푸터 바 */}
+      <footer className="bg-[#333] text-white">
+        <div className="mx-auto max-w-[1500px] px-6 py-6">
+          <div className="flex items-center gap-10">
+            <div className="flex items-center gap-3 min-w-[260px]">
+              <div className="h-10 w-10 rounded-full bg-white/10 flex items-center justify-center">
+                <span className="text-lg">🏛️</span>
+              </div>
+              <div className="font-semibold opacity-90">국립한국교통대학교</div>
+            </div>
+
+            <div className="flex-1 grid grid-cols-3 gap-6 text-xs opacity-90">
+              <div>
+                <div className="font-semibold mb-1">충주캠퍼스</div>
+                <div>27469 충청북도 충주시 대학로 50</div>
+                <div>TEL.043-841-5114</div>
+              </div>
+              <div>
+                <div className="font-semibold mb-1">증평캠퍼스</div>
+                <div>27909 충청북도 증평군 대학로 61</div>
+                <div>TEL.043-820-5114</div>
+              </div>
+              <div>
+                <div className="font-semibold mb-1">의왕캠퍼스</div>
+                <div>16106 경기도 의왕시 철도박물관로 157</div>
+                <div>TEL.031-460-0500</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center text-[11px] opacity-70 mt-4">
+            COPYRIGHT(c)2020 KOREA NATIONAL UNIVERSITY OF TRANSPORTATION ALL RIGHTS RESERVED
+          </div>
+        </div>
+      </footer>
+
+      {/* ✅ 푸터 아래 흰 여백(밑에도 흰 공간 보이게) */}
+      <div className="h-16 bg-white" />
     </div>
   );
 }
